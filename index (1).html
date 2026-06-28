@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RápidoX</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0a; color: #e0e0e0; font-family: 'Inter', sans-serif; min-height: 100vh; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 40px 40px; animation: gridMove 20s linear infinite; pointer-events: none; z-index: 0; }
+  @keyframes gridMove { 0% { background-position: 0 0; } 100% { background-position: 40px 40px; } }
+  body::after { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px); pointer-events: none; z-index: 0; }
+  .wrapper { position: relative; z-index: 1; width: 100%; max-width: 700px; padding: 60px 24px 80px; display: flex; flex-direction: column; align-items: center; }
+  .badge { display: inline-flex; align-items: center; gap: 6px; background: #1a1a1a; border: 1px solid #333; color: #888; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; padding: 6px 14px; border-radius: 100px; margin-bottom: 28px; animation: fadeDown 0.6s ease both; }
+  .badge-dot { width: 6px; height: 6px; background: #fff; border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+  .hero-title { font-family: 'Orbitron', monospace; font-size: clamp(52px, 12vw, 92px); font-weight: 900; color: #fff; letter-spacing: -0.02em; text-align: center; line-height: 1; margin-bottom: 6px; animation: fadeDown 0.7s ease 0.1s both; }
+  .hero-title span { color: #aaa; }
+  .hero-sub { font-family: 'Orbitron', monospace; font-size: clamp(10px, 2vw, 13px); letter-spacing: 0.35em; color: #444; text-transform: uppercase; text-align: center; margin-bottom: 50px; animation: fadeDown 0.7s ease 0.2s both; }
+  .stats-bar { display: flex; gap: 1px; width: 100%; margin-bottom: 48px; border: 1px solid #1f1f1f; border-radius: 8px; overflow: hidden; animation: fadeUp 0.7s ease 0.3s both; }
+  .stat { flex: 1; background: #111; padding: 18px 12px; text-align: center; border-right: 1px solid #1a1a1a; transition: background 0.2s; }
+  .stat:last-child { border-right: none; }
+  .stat:hover { background: #161616; }
+  .stat-num { font-family: 'Orbitron', monospace; font-size: 22px; font-weight: 700; color: #fff; display: block; margin-bottom: 4px; }
+  .stat-label { font-size: 11px; color: #555; letter-spacing: 0.08em; text-transform: uppercase; }
+  .info-section { width: 100%; margin-bottom: 48px; animation: fadeUp 0.7s ease 0.4s both; }
+  .info-section h2 { font-family: 'Orbitron', monospace; font-size: 13px; letter-spacing: 0.2em; color: #555; text-transform: uppercase; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .info-section h2::after { content: ''; flex: 1; height: 1px; background: #1f1f1f; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .info-card { background: #111; border: 1px solid #1e1e1e; border-radius: 8px; padding: 18px 20px; transition: border-color 0.2s, transform 0.2s; }
+  .info-card:hover { border-color: #333; transform: translateY(-1px); }
+  .info-card-icon { font-size: 20px; margin-bottom: 10px; display: block; }
+  .info-card h3 { font-size: 13px; font-weight: 500; color: #ccc; margin-bottom: 5px; }
+  .info-card p { font-size: 12px; color: #555; line-height: 1.5; }
+  .already-btn-wrap { width: 100%; margin-bottom: 12px; animation: fadeUp 0.7s ease 0.45s both; }
+  .already-btn { width: 100%; background: transparent; color: #666; border: 1px solid #1e1e1e; border-radius: 8px; font-family: 'Orbitron', monospace; font-size: 11px; letter-spacing: 0.12em; padding: 13px 14px; cursor: pointer; text-transform: uppercase; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .already-btn:hover { border-color: #444; color: #aaa; background: #111; }
+  .box { width: 100%; background: #0f0f0f; border: 1px solid #222; border-radius: 12px; padding: 36px 32px; position: relative; overflow: hidden; margin-bottom: 16px; }
+  .box::before { content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px; background: linear-gradient(90deg, transparent, #333, transparent); }
+  .box h2 { font-family: 'Orbitron', monospace; font-size: 16px; color: #fff; margin-bottom: 6px; letter-spacing: 0.05em; }
+  .box p.sub { font-size: 13px; color: #444; margin-bottom: 28px; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: #555; margin-bottom: 8px; }
+  .field input { width: 100%; background: #151515; border: 1px solid #222; border-radius: 6px; color: #e0e0e0; font-family: 'Inter', sans-serif; font-size: 14px; padding: 12px 14px; outline: none; transition: border-color 0.2s; }
+  .field input::placeholder { color: #333; }
+  .field input:focus { border-color: #555; }
+  .field input.error { border-color: #6b2020; }
+  .field input.valid { border-color: #1e3a1e; }
+  .field-hint { font-size: 11px; color: #6b2020; margin-top: 6px; min-height: 16px; display: block; }
+  .btn { width: 100%; background: #fff; color: #000; border: none; border-radius: 6px; font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.1em; padding: 14px; cursor: pointer; margin-top: 8px; transition: background 0.2s, transform 0.15s; text-transform: uppercase; }
+  .btn:hover { background: #ddd; }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { background: #222; color: #444; cursor: not-allowed; }
+  .btn.secondary { background: transparent; color: #888; border: 1px solid #2a2a2a; margin-top: 10px; }
+  .btn.secondary:hover { background: #111; color: #ccc; border-color: #444; }
+  .access-granted { display: none; text-align: center; padding: 10px 0 4px; }
+  .access-granted .ag-icon { font-family: 'Orbitron', monospace; font-size: 28px; color: #fff; display: block; margin-bottom: 10px; animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both; }
+  .access-granted .ag-title { font-family: 'Orbitron', monospace; font-size: 17px; color: #fff; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .access-granted .ag-sub { font-size: 13px; color: #555; line-height: 1.5; }
+  .access-granted .ag-sub span { color: #aaa; }
+  .login-reveal { width: 100%; overflow: hidden; max-height: 0; transition: max-height 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.4s ease; opacity: 0; }
+  .login-reveal.open { max-height: 600px; opacity: 1; }
+  .error-msg { background: #1a0a0a; border: 1px solid #5a1a1a; border-radius: 8px; padding: 14px 16px; font-size: 13px; color: #c06060; margin-bottom: 16px; display: none; }
+  .success-final { display: none; text-align: center; padding: 20px 0; }
+  .success-final .sf-icon { font-family: 'Orbitron', monospace; font-size: 32px; color: #fff; display: block; margin-bottom: 12px; }
+  .success-final h3 { font-family: 'Orbitron', monospace; font-size: 18px; color: #fff; margin-bottom: 8px; }
+  .success-final p { font-size: 13px; color: #555; margin-bottom: 0; }
+  .boost-section { display: none; width: 100%; margin-top: 16px; animation: fadeUp 0.6s ease both; }
+  .btn-boost { width: 100%; background: #111; color: #fff; border: 1px solid #333; border-radius: 8px; font-family: 'Orbitron', monospace; font-size: 15px; font-weight: 900; letter-spacing: 0.12em; padding: 18px 14px; cursor: pointer; text-transform: uppercase; position: relative; overflow: hidden; transition: transform 0.15s, border-color 0.2s; }
+  .btn-boost:hover { border-color: #888; transform: scale(1.01); }
+  .btn-boost .lightning { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; overflow: hidden; border-radius: 8px; }
+  .btn-boost .lightning span { position: absolute; width: 2px; background: #fff; opacity: 0; border-radius: 2px; animation: lightningFlash 1s ease infinite; }
+  .btn-boost .lightning span:nth-child(1) { left: 15%; height: 40%; top: -5%; animation-delay: 0s; }
+  .btn-boost .lightning span:nth-child(2) { left: 40%; height: 60%; top: -5%; animation-delay: 0.15s; }
+  .btn-boost .lightning span:nth-child(3) { left: 65%; height: 35%; top: -5%; animation-delay: 0.3s; }
+  .btn-boost .lightning span:nth-child(4) { left: 85%; height: 50%; top: -5%; animation-delay: 0.45s; }
+  .btn-boost .lightning span:nth-child(5) { left: 25%; height: 30%; top: -5%; animation-delay: 0.6s; }
+  @keyframes lightningFlash { 0% { opacity: 0; transform: scaleY(0) translateY(-10px); } 10% { opacity: 0.9; transform: scaleY(1) translateY(0); } 20% { opacity: 0; } 100% { opacity: 0; } }
+  .btn-boost-glow { position: absolute; inset: 0; border-radius: 8px; animation: boostGlow 1s ease-in-out infinite alternate; pointer-events: none; }
+  @keyframes boostGlow { from { box-shadow: inset 0 0 10px rgba(255,255,255,0.03); } to { box-shadow: inset 0 0 30px rgba(255,255,255,0.09); } }
+  .boost-tagline { text-align: center; font-size: 13px; color: #3a3a3a; margin-top: 14px; font-style: italic; }
+
+  /* LOADING SPINNER */
+  .loading-overlay { position: fixed; inset: 0; z-index: 7000; background: rgba(10,10,10,0.92); display: none; flex-direction: column; align-items: center; justify-content: center; }
+  .loading-overlay.active { display: flex; }
+  .spinner { width: 52px; height: 52px; border: 3px solid #222; border-top: 3px solid #fff; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 20px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-overlay p { font-family: 'Orbitron', monospace; font-size: 11px; letter-spacing: 0.2em; color: #444; text-transform: uppercase; }
+
+  /* PREMIUM OVERLAY */
+  .premium-overlay { position: fixed; inset: 0; z-index: 8000; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(0,0,0,0.7); backdrop-filter: blur(6px); }
+  .premium-overlay.active { display: flex; }
+  .premium-box { background: #0d0d0d; border: 1px solid #2a2a2a; border-radius: 16px; padding: 36px 28px; max-width: 560px; width: 100%; transform: scale(0.7) translateY(60px); opacity: 0; transition: transform 0.5s cubic-bezier(0.34,1.56,0.64,1), opacity 0.4s ease; position: relative; overflow: hidden; }
+  .premium-box::before { content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px; background: linear-gradient(90deg, transparent, #555, transparent); }
+  .premium-overlay.active .premium-box { transform: scale(1) translateY(0); opacity: 1; }
+  .premium-header { text-align: center; margin-bottom: 8px; }
+  .premium-header .crown { font-size: 28px; margin-bottom: 8px; display: block; }
+  .premium-header h2 { font-family: 'Orbitron', monospace; font-size: 20px; color: #fff; margin-bottom: 6px; }
+  .premium-header p { font-size: 12px; color: #555; margin-bottom: 4px; }
+  .premium-price-line { font-family: 'Orbitron', monospace; font-size: 13px; color: #888; text-align: center; margin-bottom: 20px; }
+  .premium-price-line span { color: #fff; font-size: 16px; }
+  .plans { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .plan { background: #111; border: 1px solid #1e1e1e; border-radius: 10px; padding: 18px 16px; }
+  .plan.premium-plan { border-color: #444; background: #131313; position: relative; }
+  .plan.premium-plan::before { content: 'PREMIUM'; position: absolute; top: -1px; right: 14px; background: #fff; color: #000; font-family: 'Orbitron', monospace; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; padding: 3px 8px; border-radius: 0 0 6px 6px; }
+  .plan-title { font-family: 'Orbitron', monospace; font-size: 12px; color: #888; letter-spacing: 0.1em; margin-bottom: 6px; text-transform: uppercase; }
+  .plan.premium-plan .plan-title { color: #fff; }
+  .plan-price { font-family: 'Orbitron', monospace; font-size: 22px; font-weight: 900; color: #555; margin-bottom: 14px; }
+  .plan.premium-plan .plan-price { color: #fff; }
+  .plan-features { list-style: none; display: flex; flex-direction: column; gap: 7px; margin-bottom: 14px; }
+  .plan-features li { font-size: 11px; color: #666; display: flex; align-items: center; gap: 7px; }
+  .plan.premium-plan .plan-features li { color: #bbb; }
+  .feat-check { color: #aaa; font-size: 13px; }
+  .feat-cross { color: #3a3a3a; font-size: 13px; }
+  .plan-tagline { font-size: 10px; color: #333; text-align: center; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 4px; }
+  .plan.premium-plan .plan-tagline { color: #666; }
+  .btn-nah { width: 100%; background: transparent; color: #444; border: 1px solid #1e1e1e; border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 12px; padding: 11px; cursor: pointer; margin-top: 0; transition: all 0.2s; }
+  .btn-nah:hover { color: #888; border-color: #333; }
+  .btn-premium-yes { width: 100%; background: #fff; color: #000; border: none; border-radius: 6px; font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; padding: 14px; cursor: pointer; margin-top: 8px; transition: background 0.2s, transform 0.15s; text-transform: uppercase; }
+  .btn-premium-yes:hover { background: #ddd; }
+
+  /* FULLSCREEN LOGIN */
+  .fullscreen-login { position: fixed; inset: 0; z-index: 8888; background: #0a0a0a; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; transform: translateY(-100%); transition: transform 0.55s cubic-bezier(0.22,1,0.36,1); }
+  .fullscreen-login.open { transform: translateY(0); }
+  .fullscreen-login::before { content: ''; position: fixed; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; }
+  .fl-inner { position: relative; z-index: 1; width: 100%; max-width: 420px; animation: fadeUp 0.4s ease 0.3s both; }
+  .fl-close { position: absolute; top: 20px; right: 20px; z-index: 2; background: #1a1a1a; border: 1px solid #2a2a2a; color: #666; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .fl-close:hover { border-color: #555; color: #ccc; }
+  .fl-tag { font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 0.25em; color: #333; text-transform: uppercase; text-align: center; margin-bottom: 20px; }
+  .fl-title { font-family: 'Orbitron', monospace; font-size: clamp(28px, 6vw, 42px); font-weight: 900; color: #fff; text-align: center; margin-bottom: 6px; }
+  .fl-sub { font-size: 13px; color: #444; text-align: center; margin-bottom: 32px; }
+  .fl-success { display: none; text-align: center; animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+  .fl-success-icon { font-family: 'Orbitron', monospace; font-size: 40px; color: #fff; display: block; margin-bottom: 16px; }
+  .fl-success h2 { font-family: 'Orbitron', monospace; font-size: 22px; color: #fff; margin-bottom: 10px; }
+  .fl-success p { font-size: 13px; color: #555; margin-bottom: 24px; }
+
+  /* PAYPAL */
+  .paypal-overlay { position: fixed; inset: 0; z-index: 9500; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .paypal-overlay.active { display: flex; }
+  .paypal-box { background: #0a0a0a; border: 1px solid #222; border-radius: 16px; padding: 36px 28px; max-width: 420px; width: 100%; position: relative; overflow: hidden; clip-path: circle(0% at 50% 50%); transition: clip-path 0.7s cubic-bezier(0.22,1,0.36,1); }
+  .paypal-overlay.active .paypal-box { clip-path: circle(150% at 50% 50%); }
+  .paypal-box::before { content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px; background: linear-gradient(90deg, transparent, #333, transparent); }
+  .paypal-logo { font-family: 'Orbitron', monospace; font-size: 11px; letter-spacing: 0.2em; color: #1565c0; text-transform: uppercase; margin-bottom: 6px; }
+  .paypal-box h2 { font-family: 'Orbitron', monospace; font-size: 18px; color: #fff; margin-bottom: 4px; }
+  .paypal-box .price-tag { font-family: 'Orbitron', monospace; font-size: 28px; font-weight: 900; color: #fff; margin-bottom: 24px; }
+  .paypal-box .price-tag span { font-size: 14px; color: #555; }
+  .paypal-only { font-size: 11px; color: #333; margin-bottom: 20px; letter-spacing: 0.05em; }
+  .paypal-only strong { color: #1565c0; }
+  .pp-field { margin-bottom: 14px; }
+  .pp-field label { display: block; font-size: 10px; letter-spacing: 0.12em; color: #444; text-transform: uppercase; margin-bottom: 6px; }
+  .pp-field input { width: 100%; background: #111; border: 1px solid #1e1e1e; border-radius: 6px; color: #e0e0e0; font-family: 'Inter', sans-serif; font-size: 13px; padding: 11px 12px; outline: none; transition: border-color 0.2s; }
+  .pp-field input:focus { border-color: #444; }
+  .pp-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .btn-purchase { width: 100%; background: #1565c0; color: #fff; border: none; border-radius: 6px; font-family: 'Orbitron', monospace; font-size: 13px; font-weight: 700; letter-spacing: 0.08em; padding: 14px; cursor: pointer; margin-top: 16px; transition: background 0.2s; text-transform: uppercase; }
+  .btn-purchase:hover { background: #1976d2; }
+  .btn-purchase:disabled { background: #1a1a1a; color: #444; cursor: not-allowed; }
+  .purchase-loading { display: none; text-align: center; padding: 40px 0; }
+  .purchase-loading .spinner { margin: 0 auto 20px; border-top-color: #1565c0; }
+  .purchase-loading p { font-family: 'Orbitron', monospace; font-size: 11px; color: #444; letter-spacing: 0.15em; }
+  .purchase-success { display: none; text-align: center; padding: 20px 0; animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+  .purchase-success .ps-icon { font-size: 36px; display: block; margin-bottom: 14px; }
+  .purchase-success h2 { font-family: 'Orbitron', monospace; font-size: 20px; color: #fff; margin-bottom: 8px; }
+  .purchase-success p { font-size: 13px; color: #555; margin-bottom: 20px; }
+
+  /* ROCKET */
+  .rocket-overlay { position: fixed; inset: 0; z-index: 9999; background: #111; display: none; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
+  .rocket-overlay.active { display: flex; }
+  @keyframes overlayIn { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+  @keyframes overlayOut { from { opacity: 1; } to { opacity: 0; } }
+  .sky { position: absolute; inset: 0; background: #181818; overflow: hidden; }
+  .stars { position: absolute; inset: 0; }
+  .star { position: absolute; background: #fff; border-radius: 50%; animation: twinkle 2s infinite; }
+  @keyframes twinkle { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.8; } }
+  .speed-lines { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .speed-line { position: absolute; height: 1px; background: rgba(255,255,255,0.06); animation: speedLine linear infinite; }
+  @keyframes speedLine { from { transform: translateY(-10px); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } to { transform: translateY(100vh); opacity: 0; } }
+  .sky.shaking { animation: skyShake 0.1s infinite; }
+  @keyframes skyShake { 0%,100%{transform:translate(0,0)} 25%{transform:translate(-3px,2px)} 50%{transform:translate(3px,-2px)} 75%{transform:translate(-2px,-3px)} }
+  .rocket-wrap { position: absolute; bottom: -140px; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; transition: bottom 6s cubic-bezier(0.4,0,0.2,1); }
+  .rocket-wrap.flying { bottom: 120%; }
+  .rocket-svg { width: 80px; filter: drop-shadow(0 0 12px rgba(255,255,255,0.15)); }
+  .flame-wrap { position: relative; width: 40px; margin-top: -4px; display: flex; flex-direction: column; align-items: center; }
+  .flame { width: 24px; animation: flameFlicker 0.12s infinite alternate; }
+  @keyframes flameFlicker { from{transform:scaleY(1) scaleX(1);opacity:0.9} to{transform:scaleY(1.3) scaleX(0.85);opacity:1} }
+  .trail { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 12px; display: none; }
+  .rocket-wrap.flying .trail { display: block; }
+  .trail-segment { width: 12px; height: 8px; border-radius: 50%; animation: trailFade 0.4s ease infinite; }
+  @keyframes trailFade { 0%{opacity:1;transform:scaleX(1)} 100%{opacity:0;transform:scaleX(0.3)} }
+  .hud { position: relative; z-index: 10; text-align: center; padding: 0 24px; margin-top: -80px; }
+  .hud-label { font-family: 'Orbitron', monospace; font-size: 11px; letter-spacing: 0.25em; color: #555; text-transform: uppercase; margin-bottom: 12px; }
+  .hud-status { font-family: 'Orbitron', monospace; font-size: 14px; color: #888; margin-bottom: 24px; min-height: 20px; }
+  .hud-counter { font-family: 'Orbitron', monospace; font-size: clamp(40px,10vw,72px); font-weight: 900; color: #fff; letter-spacing: -0.02em; }
+  .hud-counter-label { font-family: 'Orbitron', monospace; font-size: 11px; color: #444; letter-spacing: 0.2em; text-transform: uppercase; margin-top: 6px; }
+  .progress-bar-wrap { width: 280px; height: 3px; background: #222; border-radius: 2px; margin: 20px auto 0; overflow: hidden; }
+  .progress-bar-fill { height: 100%; width: 0%; border-radius: 2px; transition: width 0.1s linear; background: #fff; }
+  .progress-bar-fill.premium { background: linear-gradient(90deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); background-size: 200%; animation: rainbowBar 1s linear infinite; }
+  @keyframes rainbowBar { from{background-position:0%} to{background-position:200%} }
+  .done-msg { display: none; position: relative; z-index: 10; text-align: center; padding: 0 24px; animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+  .done-msg h2 { font-family: 'Orbitron', monospace; font-size: clamp(18px,5vw,30px); color: #fff; margin-bottom: 12px; letter-spacing: 0.05em; line-height: 1.3; }
+  .done-msg p { font-size: 13px; color: #555; margin-bottom: 28px; }
+  .done-msg button { background: #fff; color: #000; border: none; border-radius: 6px; font-family: 'Orbitron', monospace; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; padding: 12px 28px; cursor: pointer; text-transform: uppercase; }
+  .done-msg button:hover { background: #ccc; }
+  .premium-badge-rocket { display: none; font-family: 'Orbitron', monospace; font-size: 10px; letter-spacing: 0.2em; color: #888; text-transform: uppercase; margin-bottom: 10px; }
+
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes popIn { from{opacity:0;transform:scale(0.7)} to{opacity:1;transform:scale(1)} }
+  @keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(4px)} }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="badge"><span class="badge-dot"></span> Version 4.2.1 — Live</div>
+  <h1 class="hero-title">RÁPIDO<span>X</span></h1>
+  <p class="hero-sub">Elite FPS Optimization Engine</p>
+  <div class="stats-bar">
+    <div class="stat"><span class="stat-num" id="c1">0</span><span class="stat-label">FPS Boost</span></div>
+    <div class="stat"><span class="stat-num" id="c2">0ms</span><span class="stat-label">Latency Cut</span></div>
+    <div class="stat"><span class="stat-num" id="c3">0</span><span class="stat-label">Users</span></div>
+    <div class="stat"><span class="stat-num" id="c4">0%</span><span class="stat-label">Stutter-Free</span></div>
+  </div>
+  <div class="info-section">
+    <h2>What RápidoX does</h2>
+    <div class="info-grid">
+      <div class="info-card"><span class="info-card-icon">⚡</span><h3>Frame Acceleration</h3><p>Dynamically reallocates CPU and GPU threads to prioritize your game's render pipeline.</p></div>
+      <div class="info-card"><span class="info-card-icon">🎯</span><h3>Input Latency Killer</h3><p>Reduces mouse and keyboard input lag by bypassing unnecessary OS-level polling overhead.</p></div>
+      <div class="info-card"><span class="info-card-icon">🧠</span><h3>Smart RAM Optimizer</h3><p>Clears background memory leaks and pre-caches game assets for zero-stutter gameplay.</p></div>
+      <div class="info-card"><span class="info-card-icon">🔒</span><h3>Anti-Throttle Shield</h3><p>Prevents thermal throttling by optimizing power delivery and cooling curve profiles.</p></div>
+    </div>
+  </div>
+  <div class="already-btn-wrap">
+    <button class="already-btn" onclick="openFullLogin()">Already have an account? &nbsp;<span style="color:#fff;font-weight:700;">Login →</span></button>
+  </div>
+  <div class="box" style="animation: fadeUp 0.7s ease 0.5s both;">
+    <div id="signInForm">
+      <h2>CREATE ACCOUNT</h2>
+      <p class="sub">Register to activate your RápidoX license</p>
+      <div class="field"><label for="si-user">Username</label><input type="text" id="si-user" placeholder="Choose a username" autocomplete="off"><span class="field-hint" id="si-user-hint"></span></div>
+      <div class="field"><label for="si-pass">Password</label><input type="password" id="si-pass" placeholder="Min. 8 characters" autocomplete="off"><span class="field-hint" id="si-pass-hint"></span></div>
+      <button class="btn" onclick="handleSignIn()">SIGN IN</button>
+    </div>
+    <div class="access-granted" id="accessGranted">
+      <span class="ag-icon">✦</span>
+      <div class="ag-title">ACCESS GRANTED</div>
+      <div class="ag-sub">Account created. You can now login below as <span id="agranted-user"></span></div>
+    </div>
+  </div>
+  <div id="loginBtnWrap" style="width:100%; display:none; margin-bottom:16px;">
+    <button class="btn secondary" onclick="toggleLoginBox()">▼ &nbsp;LOGIN</button>
+  </div>
+  <div class="login-reveal" id="loginReveal">
+    <div class="box">
+      <div id="loginFormInner">
+        <h2>LOGIN</h2>
+        <p class="sub">Enter your credentials to activate RápidoX</p>
+        <div class="error-msg" id="loginError">⚠ Credentials don't match. Try again.</div>
+        <div class="field"><label for="li-user">Username</label><input type="text" id="li-user" placeholder="Enter your username" autocomplete="off"><span class="field-hint" id="li-user-hint"></span></div>
+        <div class="field"><label for="li-pass">Password</label><input type="password" id="li-pass" placeholder="Enter your password" autocomplete="off"><span class="field-hint" id="li-pass-hint"></span></div>
+        <button class="btn" onclick="handleLogin()">LOGIN</button>
+      </div>
+      <div class="success-final" id="successFinal">
+        <span class="sf-icon">⚡</span>
+        <h3>WELCOME IN</h3>
+        <p>RápidoX is now active. Your FPS boost is being applied...</p>
+      </div>
+    </div>
+  </div>
+  <div class="boost-section" id="boostSection">
+    <button class="btn-boost" onclick="launchRocket()">
+      <div class="lightning"><span></span><span></span><span></span><span></span><span></span></div>
+      <div class="btn-boost-glow"></div>
+      🚀 &nbsp;<span id="boostBtnText">BOOST FPS</span>
+    </button>
+    <p class="boost-tagline">Don't hesitate — you already know what is waiting for you.</p>
+  </div>
+</div>
+
+<!-- LOADING SPINNER -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <p>Authenticating...</p>
+</div>
+
+<!-- PREMIUM OVERLAY -->
+<div class="premium-overlay" id="premiumOverlay">
+  <div class="premium-box">
+    <div class="premium-header">
+      <span class="crown">👑</span>
+      <h2>UNLOCK PREMIUM</h2>
+      <p>Faster assets · Max performance · Deep cache cleaning</p>
+    </div>
+    <div class="premium-price-line">With just <span>$25</span> you can get full RápidoX power</div>
+    <div class="plans">
+      <div class="plan">
+        <div class="plan-title">Free</div>
+        <div class="plan-price">$0</div>
+        <ul class="plan-features">
+          <li><span class="feat-check">✓</span> Basic FPS boost</li>
+          <li><span class="feat-check">✓</span> Standard assets</li>
+          <li><span class="feat-cross">✗</span> Fast asset load</li>
+          <li><span class="feat-cross">✗</span> Deep cache clean</li>
+          <li><span class="feat-cross">✗</span> Max performance</li>
+          <li><span class="feat-cross">✗</span> Priority threads</li>
+        </ul>
+        <div class="plan-tagline">Good enough.</div>
+      </div>
+      <div class="plan premium-plan">
+        <div class="plan-title">Premium</div>
+        <div class="plan-price">$25</div>
+        <ul class="plan-features">
+          <li><span class="feat-check">✓</span> Elite FPS boost</li>
+          <li><span class="feat-check">✓</span> Instant asset load</li>
+          <li><span class="feat-check">✓</span> Deep cache clean</li>
+          <li><span class="feat-check">✓</span> Max performance</li>
+          <li><span class="feat-check">✓</span> Priority threads</li>
+          <li><span class="feat-check">✓</span> Rainbow rocket 🌈</li>
+        </ul>
+        <div class="plan-tagline">Unleash the beast.</div>
+      </div>
+    </div>
+    <button class="btn-nah" onclick="skipPremium()">Nah, I'm good</button>
+    <button class="btn-premium-yes" onclick="openPaypal()">Yes, I want max performance →</button>
+  </div>
+</div>
+
+<!-- FULLSCREEN LOGIN -->
+<div class="fullscreen-login" id="fullscreenLogin">
+  <button class="fl-close" onclick="closeFullLogin()">✕</button>
+  <div class="fl-inner">
+    <div class="fl-tag">RápidoX — Returning User</div>
+    <div class="fl-title">WELCOME<br>BACK</div>
+    <p class="fl-sub">Sign in to your existing account</p>
+    <div class="box" style="margin-bottom:0;">
+      <div id="flFormInner">
+        <div class="error-msg" id="flError">⚠ Credentials don't match. Try again.</div>
+        <div class="field"><label for="fl-user">Username</label><input type="text" id="fl-user" placeholder="Your username" autocomplete="off"><span class="field-hint" id="fl-user-hint"></span></div>
+        <div class="field"><label for="fl-pass">Password</label><input type="password" id="fl-pass" placeholder="Your password" autocomplete="off"><span class="field-hint" id="fl-pass-hint"></span></div>
+        <button class="btn" onclick="handleFullLogin()">LOGIN</button>
+        <button class="btn secondary" onclick="closeFullLogin()">BACK</button>
+      </div>
+      <div class="fl-success" id="flSuccess">
+        <span class="fl-success-icon">⚡</span>
+        <h2>WELCOME IN</h2>
+        <p>Returning you to the boost panel...</p>
+        <button class="btn" onclick="flSuccessContinue()">BOOST FPS →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAYPAL -->
+<div class="paypal-overlay" id="paypalOverlay">
+  <div class="paypal-box">
+    <div id="ppForm">
+      <div class="paypal-logo">⬛ PayPal Checkout</div>
+      <h2>RápidoX Premium</h2>
+      <div class="price-tag">$25.00 <span>/ lifetime</span></div>
+      <p class="paypal-only">This checkout only accepts <strong>PayPal</strong></p>
+      <div class="pp-field"><label>Card Number</label><input type="text" placeholder="4111 1111 1111 1111" maxlength="19" id="pp-card"></div>
+      <div class="pp-row">
+        <div class="pp-field"><label>Expiration Date</label><input type="text" placeholder="MM/YY" maxlength="5"></div>
+        <div class="pp-field"><label>CVV</label><input type="text" placeholder="•••" maxlength="3"></div>
+      </div>
+      <div class="pp-field"><label>Cardholder Name</label><input type="text" placeholder="John Doe"></div>
+      <button class="btn-purchase" onclick="handlePurchase()">PURCHASE — $25.00</button>
+    </div>
+    <div class="purchase-loading" id="purchaseLoading">
+      <div class="spinner"></div>
+      <p>Processing payment...</p>
+    </div>
+    <div class="purchase-success" id="purchaseSuccess">
+      <span class="ps-icon">🏆</span>
+      <h2>PREMIUM ACTIVATED</h2>
+      <p>Welcome to RápidoX Premium. Prepare for maximum performance.</p>
+      <button class="btn" onclick="premiumContinue()">LAUNCH MAX BOOST →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ROCKET OVERLAY -->
+<div class="rocket-overlay" id="rocketOverlay">
+  <div class="sky" id="sky">
+    <div class="stars" id="stars"></div>
+    <div class="speed-lines" id="speedLines"></div>
+  </div>
+  <div class="hud" id="hud">
+    <div class="premium-badge-rocket" id="premiumBadgeRocket">⭐ PREMIUM MODE ACTIVE</div>
+    <div class="hud-label">RápidoX Engine</div>
+    <div class="hud-status" id="hudStatus">Initializing boost sequence...</div>
+    <div class="hud-counter" id="hudCounter">0</div>
+    <div class="hud-counter-label">Assets Loaded</div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
+  </div>
+  <div class="rocket-wrap" id="rocketWrap">
+    <svg class="rocket-svg" viewBox="0 0 80 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M40 10 C25 10 18 40 18 80 L62 80 C62 40 55 10 40 10Z" fill="#555"/>
+      <path d="M40 5 C34 5 28 20 26 35 L54 35 C52 20 46 5 40 5Z" fill="#888"/>
+      <circle cx="40" cy="55" r="9" fill="#1a1a1a" stroke="#777" stroke-width="2"/>
+      <circle cx="40" cy="55" r="5" fill="#222"/>
+      <path d="M18 80 L4 110 L18 100Z" fill="#444"/>
+      <path d="M62 80 L76 110 L62 100Z" fill="#444"/>
+      <rect x="18" y="80" width="44" height="30" rx="2" fill="#4a4a4a"/>
+      <rect x="28" y="108" width="24" height="10" rx="3" fill="#333"/>
+      <line x1="18" y1="60" x2="62" y2="60" stroke="#666" stroke-width="1" opacity="0.5"/>
+      <line x1="18" y1="75" x2="62" y2="75" stroke="#666" stroke-width="1" opacity="0.5"/>
+    </svg>
+    <div class="flame-wrap">
+      <svg class="flame" viewBox="0 0 24 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 0 C8 8 4 12 5 22 C6 30 10 36 12 36 C14 36 18 30 19 22 C20 12 16 8 12 0Z" fill="#aaa" opacity="0.9"/>
+        <path d="M12 8 C10 14 8 18 9 24 C10 29 11 33 12 33 C13 33 14 29 15 24 C16 18 14 14 12 8Z" fill="#ccc" opacity="0.7"/>
+      </svg>
+      <div class="trail" id="rocketTrail"></div>
+    </div>
+  </div>
+  <div class="done-msg" id="doneMsgWrap">
+    <h2 id="doneTitle">FPS BOOSTED<br>SUCCESSFULLY!</h2>
+    <p id="doneSubtitle">All assets loaded. Your game is now running at peak performance.</p>
+    <button onclick="closeOverlay()">CLOSE</button>
+  </div>
+</div>
+
+<script>
+  let regUser='', regPass='', isPremium=false;
+
+  function animateCount(el,target,suffix,duration){
+    let s=0,step=target/(duration/16);
+    const t=setInterval(()=>{s+=step;if(s>=target){s=target;clearInterval(t);}el.innerHTML=Math.floor(s)+suffix;},16);
+  }
+  setTimeout(()=>{
+    animateCount(document.getElementById('c1'),240,'%',1400);
+    setTimeout(()=>animateCount(document.getElementById('c2'),18,'ms',1000),200);
+    setTimeout(()=>{const el=document.getElementById('c3');animateCount(el,482000,'',1800);const t=setInterval(()=>{if(parseInt(el.textContent)>=482000){el.textContent='482K';clearInterval(t);}},50);},400);
+    setTimeout(()=>animateCount(document.getElementById('c4'),99,'%',1200),600);
+  },600);
+
+  const siUser=document.getElementById('si-user'),siPass=document.getElementById('si-pass');
+  siUser.addEventListener('input',()=>{siUser.className=siUser.value.length?'valid':'';document.getElementById('si-user-hint').textContent='';});
+  siPass.addEventListener('input',()=>{const v=siPass.value;if(!v.length){siPass.className='';document.getElementById('si-pass-hint').textContent='';}else if(v.length<8){siPass.className='error';document.getElementById('si-pass-hint').textContent=`${8-v.length} more needed`;}else{siPass.className='valid';document.getElementById('si-pass-hint').textContent='';}});
+
+  function handleSignIn(){
+    const u=siUser.value.trim(),p=siPass.value;let ok=true;
+    if(!u){siUser.className='error';document.getElementById('si-user-hint').textContent='Username is required';ok=false;}
+    if(p.length<8){siPass.className='error';document.getElementById('si-pass-hint').textContent=p.length===0?'Password is required':`${8-p.length} more needed`;ok=false;}
+    if(!ok)return;
+    regUser=u;regPass=p;
+    document.getElementById('signInForm').style.display='none';
+    document.getElementById('agranted-user').textContent=u;
+    document.getElementById('accessGranted').style.display='block';
+    setTimeout(()=>{document.getElementById('loginBtnWrap').style.display='block';},600);
+  }
+
+  let loginOpen=false;
+  function toggleLoginBox(){
+    const reveal=document.getElementById('loginReveal'),btn=document.getElementById('loginBtnWrap').querySelector('button');
+    loginOpen=!loginOpen;reveal.classList.toggle('open',loginOpen);
+    btn.innerHTML=loginOpen?'▲ &nbsp;LOGIN':'▼ &nbsp;LOGIN';
+  }
+
+  const liUser=document.getElementById('li-user'),liPass=document.getElementById('li-pass');
+  liUser.addEventListener('input',()=>{liUser.className=liUser.value.length?'valid':'';document.getElementById('li-user-hint').textContent='';});
+  liPass.addEventListener('input',()=>{const v=liPass.value;if(!v.length){liPass.className='';document.getElementById('li-pass-hint').textContent='';}else if(v.length<8){liPass.className='error';document.getElementById('li-pass-hint').textContent=`${8-v.length} more needed`;}else{liPass.className='valid';document.getElementById('li-pass-hint').textContent='';}});
+
+  function handleLogin(){
+    const u=liUser.value.trim(),p=liPass.value;let ok=true;
+    const errEl=document.getElementById('loginError');errEl.style.display='none';
+    if(!u){liUser.className='error';document.getElementById('li-user-hint').textContent='Username is required';ok=false;}
+    if(!p){liPass.className='error';document.getElementById('li-pass-hint').textContent='Password is required';ok=false;}
+    if(!ok)return;
+    if(u!==regUser||p!==regPass){errEl.style.display='block';errEl.style.animation='none';void errEl.offsetWidth;errEl.style.animation='shake 0.35s ease';liUser.className='error';liPass.className='error';return;}
+    event.target.textContent='AUTHENTICATING...';event.target.disabled=true;
+    showLoadingThenPremium();
+  }
+
+  function showLoadingThenPremium(){
+    const lo=document.getElementById('loadingOverlay');
+    lo.classList.add('active');
+    setTimeout(()=>{
+      lo.classList.remove('active');
+      document.getElementById('loginFormInner').style.display='none';
+      document.getElementById('successFinal').style.display='block';
+      document.getElementById('loginBtnWrap').querySelector('button').style.display='none';
+      document.getElementById('boostSection').style.display='block';
+      setTimeout(()=>{document.getElementById('premiumOverlay').classList.add('active');},300);
+    },5000);
+  }
+
+  function skipPremium(){document.getElementById('premiumOverlay').classList.remove('active');}
+
+  function openPaypal(){
+    document.getElementById('premiumOverlay').classList.remove('active');
+    setTimeout(()=>{
+      document.getElementById('ppForm').style.display='block';
+      document.getElementById('purchaseLoading').style.display='none';
+      document.getElementById('purchaseSuccess').style.display='none';
+      document.getElementById('paypalOverlay').classList.add('active');
+    },300);
+  }
+
+  function handlePurchase(){
+    const card=document.getElementById('pp-card').value;
+    if(card.length<4){document.getElementById('pp-card').style.borderColor='#6b2020';return;}
+    document.getElementById('ppForm').style.display='none';
+    document.getElementById('purchaseLoading').style.display='block';
+    setTimeout(()=>{
+      document.getElementById('purchaseLoading').style.display='none';
+      document.getElementById('purchaseSuccess').style.display='block';
+    },10000);
+  }
+
+  function premiumContinue(){
+    isPremium=true;
+    document.getElementById('paypalOverlay').classList.remove('active');
+    document.getElementById('boostBtnText').textContent='MAX BOOST FPS ⭐';
+  }
+
+  function openFullLogin(){
+    document.getElementById('flFormInner').style.display='block';
+    document.getElementById('flSuccess').style.display='none';
+    ['fl-user','fl-pass'].forEach(id=>{document.getElementById(id).value='';document.getElementById(id).className='';});
+    ['fl-user-hint','fl-pass-hint'].forEach(id=>{document.getElementById(id).textContent='';});
+    document.getElementById('flError').style.display='none';
+    document.getElementById('fullscreenLogin').classList.add('open');
+  }
+  function closeFullLogin(){document.getElementById('fullscreenLogin').classList.remove('open');}
+
+  const flUser=document.getElementById('fl-user'),flPass=document.getElementById('fl-pass');
+  flUser.addEventListener('input',()=>{flUser.className=flUser.value.length?'valid':'';document.getElementById('fl-user-hint').textContent='';});
+  flPass.addEventListener('input',()=>{const v=flPass.value;if(!v.length){flPass.className='';document.getElementById('fl-pass-hint').textContent='';}else if(v.length<8){flPass.className='error';document.getElementById('fl-pass-hint').textContent=`${8-v.length} more needed`;}else{flPass.className='valid';document.getElementById('fl-pass-hint').textContent='';}});
+
+  function handleFullLogin(){
+    const u=flUser.value.trim(),p=flPass.value;let ok=true;
+    const errEl=document.getElementById('flError');errEl.style.display='none';
+    if(!u){flUser.className='error';document.getElementById('fl-user-hint').textContent='Username is required';ok=false;}
+    if(!p){flPass.className='error';document.getElementById('fl-pass-hint').textContent='Password is required';ok=false;}
+    if(!ok)return;
+    if(!regUser){errEl.textContent='⚠ No account registered yet. Please sign up first.';errEl.style.display='block';errEl.style.animation='none';void errEl.offsetWidth;errEl.style.animation='shake 0.35s ease';return;}
+    if(u!==regUser||p!==regPass){errEl.textContent="⚠ Credentials don't match. Try again.";errEl.style.display='block';errEl.style.animation='none';void errEl.offsetWidth;errEl.style.animation='shake 0.35s ease';flUser.className='error';flPass.className='error';return;}
+    event.target.textContent='AUTHENTICATING...';event.target.disabled=true;
+    const lo=document.getElementById('loadingOverlay');
+    lo.classList.add('active');
+    setTimeout(()=>{
+      lo.classList.remove('active');
+      document.getElementById('flFormInner').style.display='none';
+      document.getElementById('flSuccess').style.display='block';
+      setTimeout(()=>{document.getElementById('premiumOverlay').classList.add('active');},400);
+    },5000);
+  }
+
+  function flSuccessContinue(){
+    const fl=document.getElementById('fullscreenLogin');
+    fl.classList.remove('open');
+    setTimeout(()=>{
+      document.getElementById('signInForm').style.display='none';
+      document.getElementById('accessGranted').style.display='block';
+      document.getElementById('agranted-user').textContent=regUser;
+      document.getElementById('loginBtnWrap').style.display='none';
+      document.getElementById('loginFormInner').style.display='none';
+      document.getElementById('successFinal').style.display='block';
+      document.getElementById('boostSection').style.display='block';
+      document.getElementById('loginReveal').classList.remove('open');
+      setTimeout(()=>{document.getElementById('boostSection').scrollIntoView({behavior:'smooth'});},200);
+    },400);
+  }
+
+  function buildScene(){
+    const stars=document.getElementById('stars');stars.innerHTML='';
+    for(let i=0;i<80;i++){const s=document.createElement('div');s.className='star';const sz=Math.random()*2+1;s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-delay:${Math.random()*2}s;animation-duration:${1.5+Math.random()*2}s;`;stars.appendChild(s);}
+    const lines=document.getElementById('speedLines');lines.innerHTML='';
+    for(let i=0;i<30;i++){const l=document.createElement('div');l.className='speed-line';const w=Math.random()*120+40;l.style.cssText=`width:${w}px;left:${Math.random()*100}%;top:${Math.random()*100}%;animation-duration:${0.6+Math.random()*0.8}s;animation-delay:${Math.random()*1}s;`;lines.appendChild(l);}
+  }
+
+  function buildRainbowTrail(){
+    const trail=document.getElementById('rocketTrail');trail.innerHTML='';
+    const colors=['#ff0000','#ff6600','#ffff00','#00ff00','#00ffff','#0066ff','#cc00ff','#ff00cc','#ff0000'];
+    colors.forEach((c,i)=>{const seg=document.createElement('div');seg.className='trail-segment';seg.style.cssText=`background:${c};animation-delay:${i*0.05}s;`;trail.appendChild(seg);});
+  }
+
+  const freeStatuses=['Initializing boost sequence...','Scanning GPU pipeline...','Flushing RAM cache...','Optimizing render threads...','Loading frame assets...','Bypassing OS throttle...','Injecting FPS modules...','Calibrating CPU cores...','Finalizing boost protocol...','Asset load complete!'];
+  const premiumStatuses=['⭐ Activating PREMIUM engine...','🚀 Turbocharging GPU threads...','⚡ Instant cache flush...','🔥 Boosting max performance...','💎 Loading premium assets...','🌈 Unlocking rainbow mode...','⭐ Priority thread injection...','🚀 Full power calibration...','💎 Maximum boost engaged...','🌈 FULL PERFORMANCE UNLOCKED!'];
+
+  function launchRocket(){
+    buildScene();
+    if(isPremium)buildRainbowTrail();
+    const overlay=document.getElementById('rocketOverlay'),sky=document.getElementById('sky'),rocket=document.getElementById('rocketWrap');
+    const counter=document.getElementById('hudCounter'),status=document.getElementById('hudStatus'),fill=document.getElementById('progressFill');
+    const hud=document.getElementById('hud'),doneMsg=document.getElementById('doneMsgWrap');
+    const premBadge=document.getElementById('premiumBadgeRocket');
+    overlay.style.display='flex';overlay.style.animation='overlayIn 0.4s cubic-bezier(0.22,1,0.36,1) both';
+    hud.style.display='block';doneMsg.style.display='none';rocket.className='rocket-wrap';
+    counter.textContent='0';fill.style.width='0%';
+    if(isPremium){fill.classList.add('premium');premBadge.style.display='block';}else{fill.classList.remove('premium');premBadge.style.display='none';}
+    const statuses=isPremium?premiumStatuses:freeStatuses;
+    status.textContent=statuses[0];
+    const total=5000,duration=isPremium?2000:10000,interval=50;
+    const increment=total/(duration/interval);
+    let current=0,statusIdx=0,elapsed=0;
+    const statusInterval=duration/statuses.length;
+    if(!isPremium)setTimeout(()=>{sky.classList.add('shaking');},2000);
+    else setTimeout(()=>{sky.classList.add('shaking');},400);
+    const countTimer=setInterval(()=>{
+      elapsed+=interval;
+      current=Math.min(current+increment+(Math.random()*increment*0.3),total);
+      counter.textContent=Math.floor(current).toLocaleString();
+      fill.style.width=(current/total*100)+'%';
+      const newIdx=Math.floor(elapsed/statusInterval);
+      if(newIdx!==statusIdx&&newIdx<statuses.length){statusIdx=newIdx;status.textContent=statuses[statusIdx];}
+      if(current>=total){
+        clearInterval(countTimer);counter.textContent='5,000';fill.style.width='100%';status.textContent=statuses[statuses.length-1];
+        setTimeout(()=>{
+          sky.classList.remove('shaking');sky.classList.add('shaking');rocket.classList.add('flying');
+          setTimeout(()=>{
+            sky.classList.remove('shaking');hud.style.display='none';
+            document.getElementById('doneTitle').innerHTML=isPremium?'FULL PERFORMANCE<br>BOOSTED SUCCESSFULLY! 🌈':'FPS BOOSTED<br>SUCCESSFULLY!';
+            document.getElementById('doneSubtitle').textContent=isPremium?'Premium assets loaded. Maximum FPS unlocked. You are unstoppable.':'All assets loaded. Your game is now running at peak performance.';
+            doneMsg.style.display='block';
+          },3000);
+        },500);
+      }
+    },interval);
+  }
+
+  function closeOverlay(){
+    const overlay=document.getElementById('rocketOverlay');
+    overlay.style.animation='overlayOut 0.4s ease both';
+    setTimeout(()=>{overlay.style.display='none';},400);
+  }
+</script>
+</body>
+</html>
